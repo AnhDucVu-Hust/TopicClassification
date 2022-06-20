@@ -148,6 +148,7 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
 
 def get_predictions(model, data_loader):
     model = model.eval()
+
     review_texts = []
     predictions = []
     prediction_probs = []
@@ -178,24 +179,8 @@ def get_predictions(model, data_loader):
     prediction_probs = torch.stack(prediction_probs).cpu()
     real_values = torch.stack(real_values).cpu()
     return review_texts, predictions, prediction_probs, real_values
-
 PRE_TRAINED_MODEL_NAME = 'bert-base-cased'
 tokenizer=defining_bert_tokenizer(PRE_TRAINED_MODEL_NAME)
-
-sample_txt='Personal Health Record (Extract)\nCreated on October 24, 2019\nPatient\nSteven Fuerst\nBirthdate\nDecember 10, 1979\nRace\nInformation not\navailable'
-
-tokens = tokenizer.tokenize(sample_txt)
-token_ids = tokenizer.convert_tokens_to_ids(tokens)
-encoding = tokenizer.encode(
-                      sample_txt,
-                      max_length=64,
-                      add_special_tokens=True, # Add '[CLS]' and '[SEP]'
-                      return_token_type_ids=False,
-                      padding=True,
-                      return_attention_mask=True,
-                      return_tensors='pt',  # Return PyTorch tensors
-                      truncation=True,
-                    )
 
 with open("/content/drive/MyDrive/viettel_train_input.txt","r",encoding='UTF-8') as f:
   X_train=f.read().splitlines()
@@ -213,7 +198,7 @@ y_test=[label2id[label] for label in y_test]
 
 MAX_LEN=500
 BATCH_SIZE = 32
-train_data_loader = create_data_loader(X_train,y_train, tokenizer, MAX_LEN, BATCH_SIZE)
+train_data_loader = create_data_loader(X_train[:2000],y_train[:2000], tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(X_test, y_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
 data = next(iter(train_data_loader))
