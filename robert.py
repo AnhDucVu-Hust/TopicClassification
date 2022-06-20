@@ -75,7 +75,7 @@ class SentimentClassifier(nn.Module):
     def __init__(self, n_classes):
         super(SentimentClassifier, self).__init__()
         self.bert = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME,return_dict=False)
-        self.drop = nn.Dropout(p=0.3)
+        self.drop = nn.Dropout(p=0.2)
         self.out = nn.Linear(self.bert.config.hidden_size, n_classes)
 
     def forward(self, input_ids, attention_mask):
@@ -190,8 +190,8 @@ label2id=dict([label,id] for id,label in enumerate(label))
 y_train=[label2id[label] for label in y_train]
 y_test=[label2id[label] for label in y_test]
 
-MAX_LEN=100
-BATCH_SIZE = 8
+MAX_LEN=500
+BATCH_SIZE = 16
 train_data_loader = create_data_loader(X_train[:2000],y_train[:2000], tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(X_test, y_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
@@ -204,9 +204,9 @@ model = model.to(device)
 input_ids = data['input_ids'].to(device)
 attention_mask = data['attention_mask'].to(device)
 
-EPOCHS = 15
+EPOCHS = 100
 
-optimizer = AdamW(model.parameters(), lr=2e-4, correct_bias=False)
+optimizer = AdamW(model.parameters(), lr=2e-3, correct_bias=False)
 total_steps = len(train_data_loader) * EPOCHS
 
 scheduler = get_linear_schedule_with_warmup(
