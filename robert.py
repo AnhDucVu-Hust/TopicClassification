@@ -16,7 +16,10 @@ import torch.nn.functional as F
 import time
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 import torch
-
+data=pd.read_excel("/content/drive/MyDrive/data.xlsx")
+X=list(data['text'])
+y=list(data['Cấp 2'])
+X_train, X_test, y_train,y_test = train_test_split(X,y,test_size=0.2)
 def defining_bert_tokenizer(PRE_TRAINED_MODEL_NAME):
     tokenizer = BertTokenizer.from_pretrained(PRE_TRAINED_MODEL_NAME)
     return tokenizer
@@ -71,7 +74,7 @@ def create_data_loader(inp,label,tokenizer, max_len, batch_size):
 class SentimentClassifier(nn.Module):
     def __init__(self, n_classes):
         super(SentimentClassifier, self).__init__()
-        self.bert = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME)
+        self.bert = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME,return_dict=False)
         self.drop = nn.Dropout(p=0.3)
         self.out = nn.Linear(self.bert.config.hidden_size, n_classes)
 
@@ -182,30 +185,26 @@ def get_predictions(model, data_loader):
 PRE_TRAINED_MODEL_NAME = 'bert-base-cased'
 tokenizer=defining_bert_tokenizer(PRE_TRAINED_MODEL_NAME)
 
-data=pd.read_excel("/content/drive/MyDrive/data.xlsx")
-X=list(data['text'])
-y=list(data['Cấp 2'])
-X_train, X_test, y_train,y_test = train_test_split(X,y,test_size=0.2)
 label=list(set(y_train))
 label2id=dict([label,id] for id,label in enumerate(label))
 y_train=[label2id[label] for label in y_train]
 y_test=[label2id[label] for label in y_test]
 
-MAX_LEN=500
-BATCH_SIZE = 32
+MAX_LEN=100
+BATCH_SIZE = 8
 train_data_loader = create_data_loader(X_train[:2000],y_train[:2000], tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(X_test, y_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
 data = next(iter(train_data_loader))
 
-bert_model = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME)
+bert_model = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME,return_dict=False)
 
 model = SentimentClassifier(len(label))
 model = model.to(device)
 input_ids = data['input_ids'].to(device)
 attention_mask = data['attention_mask'].to(device)
 
-EPOCHS = 100
+EPOCHS = 15
 
 optimizer = AdamW(model.parameters(), lr=2e-4, correct_bias=False)
 total_steps = len(train_data_loader) * EPOCHS
