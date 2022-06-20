@@ -182,15 +182,10 @@ def get_predictions(model, data_loader):
 PRE_TRAINED_MODEL_NAME = 'bert-base-cased'
 tokenizer=defining_bert_tokenizer(PRE_TRAINED_MODEL_NAME)
 
-with open("/content/drive/MyDrive/viettel_train_input.txt","r",encoding='UTF-8') as f:
-  X_train=f.read().splitlines()
-with open("/content/drive/MyDrive/viettel_train_label.txt","r",encoding='UTF-8') as f:
-  y_train=f.read().splitlines()
-with open("/content/drive/MyDrive/viettel_test_input.txt","r",encoding='UTF-8') as f:
-  X_test=f.read().splitlines()
-with open("/content/drive/MyDrive/viettel_test_label.txt","r",encoding='UTF-8') as f:
-  y_test=f.read().splitlines()
-
+data=pd.read_excel("/content/drive/MyDrive/data.xlsx")
+X=list(data['text'])
+y=list(data['Cấp 2'])
+X_train, X_test, y_train,y_test = train_test_split(X,y,test_size=0.2)
 label=list(set(y_train))
 label2id=dict([label,id] for id,label in enumerate(label))
 y_train=[label2id[label] for label in y_train]
