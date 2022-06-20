@@ -24,11 +24,9 @@ import time
 from tqdm import notebook
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 import torch
-from vncorenlp import VnCoreNLP
 from sklearn.model_selection import train_test_split
 import argparse
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-rdrsegmenter = VnCoreNLP("/content/vncorenlp/VnCoreNLP-1.1.1.jar", annotators="wseg", max_heap_size='-Xmx500m')
 from fairseq.data.encoders.fastbpe import fastBPE
 from fairseq.data import Dictionary
 
@@ -66,14 +64,15 @@ def standard_data(data):
         data[id] = re.sub(r'\s\s+', ' ', data[id])
     return data
 X=standard_data(X)
-X_new=[]
-for line in X:
-  segmen=rdrsegmenter.tokenize(line)
-  segmen = ' '.join([' '.join(x) for x in segmen])
-  X_new.append(segmen)
-
-
-X_train,X_test,y_train,y_test=train_test_split(X_new,y,test_size=0.2,random_state=44)
+with open("/content/drive/MyDrive/stopword.txt",encoding="UTF-8") as f:
+    stop_word=f.read().splitlines()
+def remove_stopword(texts,stop_word):
+  data=[]
+  for i in range(len(texts)):
+    data.append(" ".join([word for word in texts[i].split() if word not in stop_word]))
+  return data
+X=remove_stopword(X,stop_word)
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=44)
 
 MAX_LEN = 400
 train_ids = []
