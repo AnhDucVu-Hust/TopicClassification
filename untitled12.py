@@ -226,7 +226,7 @@ for epoch_i in range(0, epochs):
 print("Training complete!")
 print('Best Valid acc : {}, epoch: {}'.format(max, e+1))
 
-!pip install GPUtil
+
 
 
 
