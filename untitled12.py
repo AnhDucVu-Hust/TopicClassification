@@ -64,14 +64,6 @@ def standard_data(data):
         data[id] = re.sub(r'\s\s+', ' ', data[id])
     return data
 X=standard_data(X)
-with open("/content/drive/MyDrive/stopword.txt",encoding="UTF-8") as f:
-    stop_word=f.read().splitlines()
-def remove_stopword(texts,stop_word):
-  data=[]
-  for i in range(len(texts)):
-    data.append(" ".join([word for word in texts[i].split() if word not in stop_word]))
-  return data
-X=remove_stopword(X,stop_word)
 X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=44)
 
 MAX_LEN = 400
